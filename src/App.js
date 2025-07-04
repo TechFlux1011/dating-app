@@ -3,12 +3,16 @@ import './App.css';
 import Chatbot from './components/Chatbot';
 import Matches from './components/Matches';
 import UserProfile from './components/UserProfile';
+import Meetups from './components/Meetups';
+import Settings from './components/Settings';
+import BottomNavBar from './components/BottomNavBar';
 import { TagExtractor } from './utils/tagExtractor';
 import { MatchingEngine } from './utils/matchingEngine';
 import { MockDataGenerator } from './utils/mockData';
 
 function App() {
-  const [currentPhase, setCurrentPhase] = useState('welcome'); // welcome, profile, preferences, matches
+  const [currentPhase, setCurrentPhase] = useState('welcome'); // welcome, app
+  const [activeTab, setActiveTab] = useState('search'); // profile, matches, search, meetups, settings
   const [userProfile, setUserProfile] = useState({
     id: null,
     name: '',
@@ -66,7 +70,8 @@ function App() {
     const userMatches = matchingEngine.findMatches(newProfile, allUsers);
     setMatches(userMatches);
     
-    setCurrentPhase('matches');
+    setCurrentPhase('app');
+    setActiveTab('matches');
   };
 
   const loadMockData = () => {
@@ -112,54 +117,70 @@ function App() {
       completed: false
     });
     setMatches([]);
+    setActiveTab('search');
   };
 
-  const renderCurrentPhase = () => {
-    switch (currentPhase) {
-      case 'welcome':
-        return (
-          <div className="welcome-screen">
-            <h1>💕 HeartChat</h1>
-            <p>The dating app that truly understands you</p>
-            
-            <div className="welcome-actions">
-              <button onClick={() => setCurrentPhase('profile')} className="start-button">
-                Start Your Journey
+  const handleTabChange = (tab) => {
+    if (tab === 'search') {
+      if (!userProfile.completed) {
+        setCurrentPhase('profile');
+      } else {
+        setActiveTab(tab);
+      }
+    } else {
+      setActiveTab(tab);
+    }
+  };
+
+  const renderWelcomeScreen = () => (
+    <div className="welcome-screen">
+      <h1>💕 HeartChat</h1>
+      <p>The dating app that truly understands you</p>
+      
+      <div className="welcome-actions">
+        <button onClick={() => setCurrentPhase('profile')} className="start-button">
+          Start Your Journey
+        </button>
+        
+        <div className="mock-data-controls">
+          <h3>🧪 Test the App</h3>
+          <p>Load mock profiles to test the matching system</p>
+          
+          <div className="mock-buttons">
+            {!mockDataLoaded ? (
+              <>
+                <button onClick={loadMockData} className="mock-button">
+                  Load All Mock Profiles ({new MockDataGenerator().getAllMockProfiles().length})
+                </button>
+                <button onClick={loadTestProfiles} className="mock-button secondary">
+                  Load Test Profiles (8)
+                </button>
+              </>
+            ) : (
+              <button onClick={clearMockData} className="mock-button danger">
+                Clear Mock Data
               </button>
-              
-              <div className="mock-data-controls">
-                <h3>🧪 Test the App</h3>
-                <p>Load mock profiles to test the matching system</p>
-                
-                <div className="mock-buttons">
-                  {!mockDataLoaded ? (
-                    <>
-                      <button onClick={loadMockData} className="mock-button">
-                        Load All Mock Profiles ({new MockDataGenerator().getAllMockProfiles().length})
-                      </button>
-                      <button onClick={loadTestProfiles} className="mock-button secondary">
-                        Load Test Profiles (8)
-                      </button>
-                    </>
-                  ) : (
-                    <button onClick={clearMockData} className="mock-button danger">
-                      Clear Mock Data
-                    </button>
-                  )}
-                </div>
-                
-                {mockDataLoaded && (
-                  <p className="mock-status">
-                    ✅ Mock data loaded! ({allUsers.filter(u => u.isMock).length} profiles)
-                  </p>
-                )}
-              </div>
-            </div>
+            )}
           </div>
-        );
+          
+          {mockDataLoaded && (
+            <p className="mock-status">
+              ✅ Mock data loaded! ({allUsers.filter(u => u.isMock).length} profiles)
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderMainApp = () => {
+    switch (activeTab) {
       case 'profile':
         return (
-          <Chatbot onComplete={handleChatbotComplete} />
+          <UserProfile 
+            userProfile={userProfile} 
+            onEdit={() => setCurrentPhase('profile')}
+          />
         );
       case 'matches':
         return (
@@ -168,6 +189,79 @@ function App() {
             userProfile={userProfile}
             onReset={resetApp}
           />
+        );
+      case 'search':
+        return (
+          <div className="search-container">
+            <div className="search-header">
+              <h2>Discover New Connections</h2>
+              <p>Let's find your perfect match</p>
+            </div>
+            
+            {!userProfile.completed ? (
+              <div className="search-prompt">
+                <h3>Complete your profile first</h3>
+                <p>Tell us about yourself to get personalized matches</p>
+                <button 
+                  onClick={() => setCurrentPhase('profile')}
+                  className="complete-profile-btn"
+                >
+                  Complete Profile
+                </button>
+              </div>
+            ) : (
+              <div className="search-results">
+                <h3>Your Matches</h3>
+                <p>Based on your profile, here are your best matches:</p>
+                <Matches 
+                  matches={matches} 
+                  userProfile={userProfile}
+                  onReset={resetApp}
+                  compact={true}
+                />
+              </div>
+            )}
+          </div>
+        );
+      case 'meetups':
+        return (
+          <Meetups 
+            currentUser={userProfile}
+            userProfiles={allUsers}
+            matches={matches}
+          />
+        );
+      case 'settings':
+        return (
+          <Settings 
+            currentUser={userProfile}
+            onUpdateUser={setUserProfile}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderCurrentPhase = () => {
+    switch (currentPhase) {
+      case 'welcome':
+        return renderWelcomeScreen();
+      case 'profile':
+        return (
+          <Chatbot onComplete={handleChatbotComplete} />
+        );
+      case 'app':
+        return (
+          <div className="app-container">
+            <div className="main-content">
+              {renderMainApp()}
+            </div>
+            <BottomNavBar 
+              activeTab={activeTab} 
+              onTabChange={handleTabChange}
+            />
+          </div>
         );
       default:
         return null;

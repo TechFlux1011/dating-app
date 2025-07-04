@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Matches.css';
 
-const Matches = ({ matches, userProfile, onReset }) => {
+const Matches = ({ matches, userProfile, onReset, compact = false }) => {
   const [selectedMatch, setSelectedMatch] = useState(null);
 
   const handleMatchClick = (match) => {
@@ -23,14 +23,16 @@ const Matches = ({ matches, userProfile, onReset }) => {
   };
 
   return (
-    <div className="matches-container">
-      <div className="matches-header">
-        <h2>🎯 Your Matches</h2>
-        <p>Found {matches.length} people who align with what you're looking for</p>
-        <button onClick={onReset} className="reset-button">
-          Start Over
-        </button>
-      </div>
+    <div className={`matches-container ${compact ? 'compact' : ''}`}>
+      {!compact && (
+        <div className="matches-header">
+          <h2>🎯 Your Matches</h2>
+          <p>Found {matches.length} people who align with what you're looking for</p>
+          <button onClick={onReset} className="reset-button">
+            Start Over
+          </button>
+        </div>
+      )}
 
       {matches.length === 0 ? (
         <div className="no-matches">

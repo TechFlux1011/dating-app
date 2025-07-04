@@ -421,4 +421,38 @@
     top: 10px;
     right: 15px;
   }
+}
+
+/* Compact Mode Styles */
+.matches-container.compact {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.matches-container.compact .matches-grid {
+  gap: 15px;
+}
+
+.matches-container.compact .match-card {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+.matches-container.compact .match-header h3 {
+  font-size: 1.1rem;
+}
+
+.matches-container.compact .match-score {
+  font-size: 0.9rem;
+}
+
+.matches-container.compact .match-preview p {
+  font-size: 0.9rem;
+}
+
+.matches-container.compact .view-profile-btn {
+  padding: 8px 16px;
+  font-size: 0.9rem;
 } 

@@ -1,0 +1,183 @@
+import React, { useState } from 'react';
+import './Settings.css';
+
+const Settings = ({ currentUser, onUpdateUser }) => {
+  const [settings, setSettings] = useState({
+    notifications: true,
+    locationSharing: true,
+    matchPreferences: 'both', // dating, friends, both
+    ageRange: { min: 18, max: 99 },
+    maxDistance: 50,
+    showMeIn: 'both' // dating, friends, both
+  });
+
+  const handleSave = () => {
+    localStorage.setItem('userSettings', JSON.stringify(settings));
+    alert('Settings saved successfully!');
+  };
+
+  const handleClearData = () => {
+    const confirmClear = window.confirm(
+      'Are you sure you want to clear all your data? This action cannot be undone.'
+    );
+    
+    if (confirmClear) {
+      localStorage.clear();
+      alert('All data has been cleared. Please refresh the page.');
+    }
+  };
+
+  return (
+    <div className="settings-container">
+      <div className="settings-header">
+        <h2>Settings</h2>
+        <p>Customize your HeartChat experience</p>
+      </div>
+      
+      <div className="settings-content">
+        <div className="settings-section">
+          <h3>Privacy & Notifications</h3>
+          
+          <div className="setting-item">
+            <label className="setting-label">
+              <input
+                type="checkbox"
+                checked={settings.notifications}
+                onChange={(e) => setSettings({
+                  ...settings,
+                  notifications: e.target.checked
+                })}
+              />
+              <span className="checkmark"></span>
+              Enable notifications
+            </label>
+            <p className="setting-description">
+              Get notified about new matches and meetup requests
+            </p>
+          </div>
+          
+          <div className="setting-item">
+            <label className="setting-label">
+              <input
+                type="checkbox"
+                checked={settings.locationSharing}
+                onChange={(e) => setSettings({
+                  ...settings,
+                  locationSharing: e.target.checked
+                })}
+              />
+              <span className="checkmark"></span>
+              Share location for meetups
+            </label>
+            <p className="setting-description">
+              Allow location sharing for meetup recommendations
+            </p>
+          </div>
+        </div>
+        
+        <div className="settings-section">
+          <h3>Match Preferences</h3>
+          
+          <div className="setting-item">
+            <label className="setting-label">Looking for:</label>
+            <select
+              value={settings.matchPreferences}
+              onChange={(e) => setSettings({
+                ...settings,
+                matchPreferences: e.target.value
+              })}
+              className="setting-select"
+            >
+              <option value="dating">Dating only</option>
+              <option value="friends">Friends only</option>
+              <option value="both">Both dating and friends</option>
+            </select>
+          </div>
+          
+          <div className="setting-item">
+            <label className="setting-label">Show me in:</label>
+            <select
+              value={settings.showMeIn}
+              onChange={(e) => setSettings({
+                ...settings,
+                showMeIn: e.target.value
+              })}
+              className="setting-select"
+            >
+              <option value="dating">Dating only</option>
+              <option value="friends">Friends only</option>
+              <option value="both">Both dating and friends</option>
+            </select>
+          </div>
+          
+          <div className="setting-item">
+            <label className="setting-label">Age range:</label>
+            <div className="range-input">
+              <input
+                type="range"
+                min="18"
+                max="99"
+                value={settings.ageRange.min}
+                onChange={(e) => setSettings({
+                  ...settings,
+                  ageRange: { ...settings.ageRange, min: parseInt(e.target.value) }
+                })}
+                className="range-slider"
+              />
+              <span className="range-value">{settings.ageRange.min} - {settings.ageRange.max}</span>
+            </div>
+          </div>
+          
+          <div className="setting-item">
+            <label className="setting-label">Maximum distance:</label>
+            <div className="range-input">
+              <input
+                type="range"
+                min="1"
+                max="100"
+                value={settings.maxDistance}
+                onChange={(e) => setSettings({
+                  ...settings,
+                  maxDistance: parseInt(e.target.value)
+                })}
+                className="range-slider"
+              />
+              <span className="range-value">{settings.maxDistance} km</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="settings-section">
+          <h3>Account</h3>
+          
+          <div className="setting-item">
+            <button className="save-btn" onClick={handleSave}>
+              💾 Save Settings
+            </button>
+          </div>
+          
+          <div className="setting-item">
+            <button className="clear-data-btn" onClick={handleClearData}>
+              🗑️ Clear All Data
+            </button>
+            <p className="setting-description">
+              This will remove all your profiles, matches, and meetup data
+            </p>
+          </div>
+        </div>
+        
+        <div className="settings-section">
+          <h3>About</h3>
+          
+          <div className="about-info">
+            <h4>HeartChat v1.0.0</h4>
+            <p>A unique dating app where meaningful connections begin with conversation.</p>
+            <p>Built with React and lots of ❤️</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Settings; 

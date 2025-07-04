@@ -274,3 +274,147 @@ button:active {
 .mt-20 {
   margin-top: 20px;
 }
+
+/* New Navigation Styles */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding-bottom: 90px; /* Account for bottom navigation */
+}
+
+/* Search Container Styles */
+.search-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  color: white;
+}
+
+.search-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.search-header h2 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.search-header p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.search-prompt {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-prompt h3 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: white;
+}
+
+.search-prompt p {
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+.complete-profile-btn {
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+  border: none;
+  color: white;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.complete-profile-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+
+.search-results {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.search-results h3 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.search-results p {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+/* Responsive Design for New Elements */
+@media (max-width: 768px) {
+  .search-container {
+    padding: 15px;
+  }
+  
+  .search-header h2 {
+    font-size: 2rem;
+  }
+  
+  .search-prompt {
+    padding: 30px 20px;
+  }
+  
+  .search-prompt h3 {
+    font-size: 1.5rem;
+  }
+  
+  .search-results {
+    padding: 20px;
+  }
+  
+  .search-results h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-header h2 {
+    font-size: 1.8rem;
+  }
+  
+  .search-prompt {
+    padding: 20px 15px;
+  }
+  
+  .search-prompt h3 {
+    font-size: 1.3rem;
+  }
+  
+  .complete-profile-btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+  }
+}
