@@ -32,15 +32,15 @@ const Chatbot = ({ onComplete }) => {
       examples: []
     },
     {
-      bot: "Got it! What's your sexuality? This helps me understand what you're looking for.",
-      field: 'sexuality',
-      placeholder: 'e.g., Straight, Gay, Bisexual, Pansexual, Asexual, etc.',
+      bot: "Got it! What's your gender identity?",
+      field: 'gender',
+      placeholder: 'e.g., Man, Woman, Non-binary, Genderfluid, etc.',
       examples: []
     },
     {
-      bot: "Thanks for sharing! What's your gender identity?",
-      field: 'gender',
-      placeholder: 'e.g., Man, Woman, Non-binary, Genderfluid, etc.',
+      bot: "Thanks for sharing! What's your sexuality? This helps me understand what you're looking for.",
+      field: 'sexuality',
+      placeholder: 'e.g., Straight, Gay, Bisexual, Pansexual, Asexual, etc.',
       examples: []
     },
     {

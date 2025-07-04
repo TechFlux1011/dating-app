@@ -48,21 +48,12 @@
   flex: 1;
   overflow-y: auto;
   padding-bottom: 20px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
 
 .search-messages::-webkit-scrollbar {
-  width: 6px;
-}
-
-.search-messages::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.search-messages::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
+  display: none; /* Safari and Chrome */
 }
 
 .search-message {
