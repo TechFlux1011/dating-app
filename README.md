@@ -7,6 +7,8 @@ HeartChat is a revolutionary dating app that uses intelligent conversation to un
 - **Conversational Onboarding**: Chat with an AI bot that asks thoughtful questions about you
 - **Smart Tag Extraction**: Automatically identifies keywords and interests from your responses
 - **Intelligent Matching**: Advanced matching algorithm that finds compatible partners
+- **Unified Messaging System**: Single messages page that handles both message lists and individual chats
+- **Real-time Notifications**: Badge system showing unread messages and new matches
 - **Beautiful Modern UI**: Clean, responsive design with smooth animations
 - **Real-time Chat Interface**: Natural conversation flow with typing indicators
 - **Match Scoring**: Shows compatibility percentages with detailed explanations
@@ -47,12 +49,30 @@ npm start
 5. **Browse Matches**: View potential matches with compatibility scores
 6. **Profile Details**: Click on matches to see detailed profiles and shared interests
 
+## 💬 Messaging System
+
+HeartChat features a unified messaging system that provides a seamless chat experience:
+
+### Navigation
+- **Floating Messages Button**: Click to view all your conversations
+- **Profile Message Button**: Click to open a specific chat with that person
+- **Back Button**: Returns from individual chat to messages list
+
+### Features
+- **Single Messages Page**: One centralized location for all messaging
+- **Real-time Notifications**: Badge shows count of unread messages and new matches
+- **Message Status**: Read/unread indicators and "New" badges for fresh matches
+- **Instant Updates**: Messages appear immediately with timestamps
+- **Responsive Design**: Works perfectly on mobile and desktop
+
 ## 🏗️ Technical Architecture
 
 ### Components
 - **App.js**: Main application component managing state and navigation
 - **Chatbot.js**: Conversational interface for user onboarding
 - **Matches.js**: Display and interaction with potential matches
+- **MessagesPage.js**: Unified messaging system for all conversations
+- **Messages.js**: Floating messages button with notification badges
 - **UserProfile.js**: User profile management and display
 
 ### Utilities

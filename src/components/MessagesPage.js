@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './MessagesPage.css';
 
 const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
-  // Load actual messages from localStorage
   const [messages, setMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
   const [currentMatch, setCurrentMatch] = useState(null);
@@ -20,8 +19,11 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
       const [, matchId] = likeKey.split('_');
       
       // Find the actual match user
-      const matchUser = allUsers.find(user => user.id === matchId);
+      const matchUser = allUsers?.find(user => user.id === matchId);
       const matchName = matchUser ? matchUser.name : `Match ${matchId}`;
+      
+      // Check if this conversation has unread messages
+      const hasUnreadMessages = chatHistory.some(msg => !msg.read);
       
       if (lastMessage) {
         return {
@@ -31,7 +33,8 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
           timestamp: lastMessage.timestamp,
           read: lastMessage.read,
           avatar: "💕",
-          matchUser: matchUser
+          matchUser: matchUser,
+          hasUnreadMessages: hasUnreadMessages
         };
       }
       
@@ -40,9 +43,11 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
         sender: matchName,
         message: "You matched! Start the conversation.",
         timestamp: Date.now(),
-        read: true,
+        read: false, // New matches should be marked as unread
         avatar: "💕",
-        matchUser: matchUser
+        matchUser: matchUser,
+        hasUnreadMessages: false,
+        isNewMatch: true
       };
     });
     
@@ -55,6 +60,11 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
       setCurrentMatch(selectedMatch);
       setChatMessages(chatHistory);
       setShowChat(true);
+    } else {
+      // Make sure we're showing the messages list
+      setShowChat(false);
+      setCurrentMatch(null);
+      setChatMessages([]);
     }
   }, [selectedMatch, userProfile, allUsers]);
 
@@ -86,9 +96,9 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
     savedChatMessages[messageId] = updatedConversation;
     localStorage.setItem('chatMessages', JSON.stringify(savedChatMessages));
     
-    // Update the messages display
+    // Update the messages display to remove badges
     setMessages(prev => prev.map(msg => 
-      msg.id === messageId ? { ...msg, read: true } : msg
+      msg.id === messageId ? { ...msg, read: true, hasUnreadMessages: false, isNewMatch: false } : msg
     ));
     
     // Trigger a storage event to update the badge count
@@ -140,17 +150,15 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
     window.dispatchEvent(new Event('refreshMessageCounts'));
   };
 
+  // If we're showing a specific chat
   if (showChat && currentMatch) {
     return (
       <div className="messages-page">
         <div className="messages-header">
           <button onClick={handleBackToMessages} className="back-button">
-            ← Back to Messages
+            ←
           </button>
           <h2>💬 {currentMatch.name}</h2>
-          <div className="messages-count">
-            {chatMessages.length} message{chatMessages.length !== 1 ? 's' : ''}
-          </div>
         </div>
 
         <div className="chat-content">
@@ -207,16 +215,14 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
     );
   }
 
+  // Otherwise, show the messages list
   return (
     <div className="messages-page">
       <div className="messages-header">
         <button onClick={onBack} className="back-button">
-          ← Back
+          ←
         </button>
         <h2>💬 Messages</h2>
-        <div className="messages-count">
-          {messages.length} conversation{messages.length !== 1 ? 's' : ''}
-        </div>
       </div>
 
       <div className="messages-content">
@@ -231,7 +237,7 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
             {messages.map(message => (
               <div 
                 key={message.id} 
-                className={`message-item ${!message.read ? 'unread' : ''}`}
+                className={`message-item ${(message.hasUnreadMessages || message.isNewMatch || !message.read) ? 'unread' : ''}`}
                 onClick={() => handleMessageClick(message.id)}
               >
                 <div className="message-avatar">
@@ -240,7 +246,11 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
                 <div className="message-info">
                   <div className="message-sender">
                     {message.sender}
-                    {!message.read && <span className="unread-dot"></span>}
+                    {(message.hasUnreadMessages || message.isNewMatch || !message.read) && (
+                      <span className="red-badge">
+                        {message.isNewMatch ? 'New' : 'Unread'}
+                      </span>
+                    )}
                   </div>
                   <div className="message-preview">
                     {message.message}

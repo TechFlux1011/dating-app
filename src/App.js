@@ -232,7 +232,6 @@ function App() {
             matches={matches} 
             userProfile={userProfile}
             onReset={resetApp}
-            onOpenMessages={handleMessageClick}
           />
         );
       case 'search':

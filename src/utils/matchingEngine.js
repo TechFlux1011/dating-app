@@ -10,10 +10,6 @@ export class MatchingEngine {
 
   // Check if two users are romantically compatible based on gender and sexuality
   areRomanticallyCompatible(user1, user2) {
-    const user1Gender = user1.gender?.toLowerCase();
-    const user1Sexuality = user1.sexuality?.toLowerCase();
-    const user2Gender = user2.gender?.toLowerCase();
-    const user2Sexuality = user2.sexuality?.toLowerCase();
 
     // Function to check if user1 would be romantically interested in user2
     const isAttracted = (person, target) => {

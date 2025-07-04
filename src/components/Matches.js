@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Matches.css';
 
-const Matches = ({ matches, userProfile, onReset, compact = false, onOpenMessages }) => {
+const Matches = ({ matches, userProfile, onReset, compact = false }) => {
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [mutualLikes, setMutualLikes] = useState(new Set());
 
@@ -62,13 +62,7 @@ const Matches = ({ matches, userProfile, onReset, compact = false, onOpenMessage
     closeModal();
   };
 
-  const handleStartChat = (match) => {
-    // Open messages page with specific match
-    if (onOpenMessages) {
-      onOpenMessages(match);
-    }
-    closeModal();
-  };
+
 
   const isLiked = (match) => {
     const likeKey = `${userProfile.id}_${match.id}`;
@@ -158,12 +152,22 @@ const Matches = ({ matches, userProfile, onReset, compact = false, onOpenMessage
             
             <div className="modal-body">
               <div className="profile-section">
+                <h3>Basic Info</h3>
+                <div className="basic-info">
+                  <p><strong>Age:</strong> {selectedMatch.age}</p>
+                  <p><strong>Gender:</strong> {selectedMatch.gender}</p>
+                  <p><strong>Sexuality:</strong> {selectedMatch.sexuality}</p>
+                  <p><strong>Looking for:</strong> {selectedMatch.matchPreferences}</p>
+                </div>
+              </div>
+              
+              <div className="profile-section">
                 <h3>About {selectedMatch.name}</h3>
                 <p>{selectedMatch.selfDescription}</p>
               </div>
               
               <div className="profile-section">
-                <h3>Looking For</h3>
+                <h3>What They're Looking For</h3>
                 <p>{selectedMatch.lookingFor}</p>
               </div>
               
@@ -191,21 +195,12 @@ const Matches = ({ matches, userProfile, onReset, compact = false, onOpenMessage
             </div>
             
             <div className="modal-footer">
-              {isLiked(selectedMatch) ? (
-                <button 
-                  className="message-button"
-                  onClick={() => handleStartChat(selectedMatch)}
-                >
-                  💬 Message
-                </button>
-              ) : (
-                <button 
-                  className="like-button"
-                  onClick={() => handleLike(selectedMatch)}
-                >
-                  💕 Like
-                </button>
-              )}
+              <button 
+                className={`like-button ${isLiked(selectedMatch) ? 'liked' : ''}`}
+                onClick={() => handleLike(selectedMatch)}
+              >
+                {isLiked(selectedMatch) ? '💕 Liked' : '💕 Like'}
+              </button>
               <button 
                 className="pass-button"
                 onClick={() => handlePass(selectedMatch)}

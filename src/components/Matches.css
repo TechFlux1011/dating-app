@@ -317,6 +317,24 @@
   margin-left: 19px;
 }
 
+.basic-info {
+  margin-left: 19px;
+}
+
+.basic-info p {
+  margin: 8px 0;
+  margin-left: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.basic-info strong {
+  color: #333;
+  font-weight: 600;
+  min-width: 80px;
+}
+
 .modal-footer {
   display: flex;
   justify-content: center;
@@ -342,6 +360,17 @@
 .like-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+}
+
+.like-button.liked {
+  background: linear-gradient(135deg, #95e1d3, #4ECDC4);
+  opacity: 0.8;
+  cursor: default;
+}
+
+.like-button.liked:hover {
+  transform: none;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
 }
 
 .pass-button {
@@ -396,7 +425,7 @@
     gap: 15px;
   }
   
-  .like-button, .pass-button, .message-button {
+  .like-button, .pass-button {
     flex: 1;
   }
 }
@@ -459,24 +488,6 @@
   font-size: 0.9rem;
 }
 
-/* Message Button */
-.message-button {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  padding: 15px 30px;
-  border: none;
-  border-radius: 25px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-  flex: 1;
-}
 
-.message-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
 
  
