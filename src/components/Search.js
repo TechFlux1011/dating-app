@@ -58,7 +58,7 @@ const Search = ({ userProfiles, currentUser }) => {
     
 
     // Find matches based on search criteria
-    const matches = findMatches(currentUser, userProfiles, extractedTags);
+    const matches = findMatches(currentUser, userProfiles, extractedTags, currentUser);
     setSearchResults(matches);
 
     // Simulate bot thinking time

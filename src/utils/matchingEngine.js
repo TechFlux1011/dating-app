@@ -8,16 +8,67 @@ export class MatchingEngine {
     };
   }
 
+  // Filter users based on gender and sexuality preferences
+  filterByGenderAndSexuality(userProfile, candidates) {
+    // If user is looking for friends only or both, show all genders
+    if (userProfile.matchPreferences === 'friends' || userProfile.matchPreferences === 'both') {
+      return candidates;
+    }
+
+    // If user is looking for dating only, filter by gender based on sexuality
+    if (userProfile.matchPreferences === 'dating') {
+      const userGender = userProfile.gender?.toLowerCase();
+      const userSexuality = userProfile.sexuality?.toLowerCase();
+
+      return candidates.filter(candidate => {
+        const candidateGender = candidate.gender?.toLowerCase();
+        
+        // Handle different sexualities
+        switch (userSexuality) {
+          case 'straight':
+            // Straight users prefer opposite gender
+            if (userGender === 'man') return candidateGender === 'woman';
+            if (userGender === 'woman') return candidateGender === 'man';
+            // For non-binary users who are straight, show all genders
+            return true;
+          
+          case 'gay':
+          case 'lesbian':
+            // Gay/lesbian users prefer same gender
+            return candidateGender === userGender;
+          
+          case 'bisexual':
+          case 'pansexual':
+          case 'queer':
+            // Bisexual/pansexual/queer users can match with any gender
+            return true;
+          
+          default:
+            // For unknown sexualities, show all genders
+            return true;
+        }
+      });
+    }
+
+    // Default: return all candidates
+    return candidates;
+  }
+
   // New method for search functionality
-  findMatchesFromSearchTags(searchTags, allUsers, excludeUserId = null) {
+  findMatchesFromSearchTags(searchTags, allUsers, excludeUserId = null, userProfile = null) {
     if (!searchTags || !allUsers || allUsers.length === 0) {
       return [];
     }
 
     // Filter out the current user if specified
-    const candidateUsers = excludeUserId 
+    let candidateUsers = excludeUserId 
       ? allUsers.filter(user => user.id !== excludeUserId)
       : allUsers;
+
+    // Apply gender and sexuality filtering if userProfile is provided
+    if (userProfile) {
+      candidateUsers = this.filterByGenderAndSexuality(userProfile, candidateUsers);
+    }
 
     // Extract tag names from search tags
     const searchTagNames = searchTags.map(tag => tag.name);
@@ -107,7 +158,10 @@ export class MatchingEngine {
     }
 
     // Filter out the current user
-    const otherUsers = allUsers.filter(user => user.id !== userProfile.id);
+    let otherUsers = allUsers.filter(user => user.id !== userProfile.id);
+    
+    // Apply gender and sexuality filtering
+    otherUsers = this.filterByGenderAndSexuality(userProfile, otherUsers);
     
     // Calculate match scores for each user
     const matchesWithScores = otherUsers.map(otherUser => {
@@ -245,10 +299,10 @@ export class MatchingEngine {
 const matchingEngine = new MatchingEngine();
 
 // Export standalone functions for easy importing
-export const findMatches = (currentUser, allUsers, searchTags = null) => {
+export const findMatches = (currentUser, allUsers, searchTags = null, userProfile = null) => {
   if (searchTags && searchTags.length > 0) {
     // Use search functionality
-    return matchingEngine.findMatchesFromSearchTags(searchTags, allUsers, currentUser?.id);
+    return matchingEngine.findMatchesFromSearchTags(searchTags, allUsers, currentUser?.id, userProfile || currentUser);
   } else {
     // Use regular matching
     return matchingEngine.findMatches(currentUser, allUsers);
