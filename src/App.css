@@ -1,38 +1,276 @@
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding: 20px;
+}
+
+/* Welcome Screen */
+.welcome-screen {
+  text-align: center;
+  color: white;
+  padding: 40px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.welcome-screen h1 {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  animation: pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
+}
+
+.welcome-screen p {
+  font-size: 1.5rem;
+  margin-bottom: 40px;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
+}
+
+.start-button {
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+  border: none;
+  color: white;
+  padding: 18px 40px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.start-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+  background: linear-gradient(45deg, #FF5252, #26C6DA);
+}
+
+.start-button:active {
+  transform: translateY(0);
+}
+
+/* Mock Data Controls */
+.mock-data-controls {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 500px;
+  width: 100%;
+}
+
+.mock-data-controls h3 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.mock-data-controls p {
+  font-size: 1rem;
+  margin-bottom: 25px;
+  opacity: 0.9;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.mock-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.mock-button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.mock-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.mock-button.secondary {
+  background: linear-gradient(135deg, #4ECDC4, #44A08D);
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.mock-button.secondary:hover {
+  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+}
+
+.mock-button.danger {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.mock-button.danger:hover {
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.mock-status {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  padding: 12px 20px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .welcome-screen {
+    padding: 20px;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .welcome-screen h1 {
+    font-size: 2.5rem;
   }
+  
+  .welcome-screen p {
+    font-size: 1.2rem;
+  }
+  
+  .start-button {
+    padding: 15px 30px;
+    font-size: 1rem;
+  }
+  
+  .mock-data-controls {
+    padding: 20px;
+    margin: 0 10px;
+  }
+  
+  .mock-buttons {
+    gap: 12px;
+  }
+  
+  .mock-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-screen {
+    padding: 15px;
+  }
+  
+  .welcome-actions {
+    gap: 30px;
+  }
+  
+  .mock-data-controls {
+    padding: 15px;
+  }
+  
+  .mock-data-controls h3 {
+    font-size: 1.1rem;
+  }
+  
+  .mock-data-controls p {
+    font-size: 0.9rem;
+  }
+}
+
+/* General Button Styles */
+button {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Utility Classes */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-white {
+  color: white;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mt-20 {
+  margin-top: 20px;
 }
