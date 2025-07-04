@@ -8,50 +8,82 @@ export class MatchingEngine {
     };
   }
 
-  // Filter users based on gender and sexuality preferences
-  filterByGenderAndSexuality(userProfile, candidates) {
-    // If user is looking for friends only or both, show all genders
-    if (userProfile.matchPreferences === 'friends' || userProfile.matchPreferences === 'both') {
-      return candidates;
-    }
+  // Check if two users are romantically compatible based on gender and sexuality
+  areRomanticallyCompatible(user1, user2) {
+    const user1Gender = user1.gender?.toLowerCase();
+    const user1Sexuality = user1.sexuality?.toLowerCase();
+    const user2Gender = user2.gender?.toLowerCase();
+    const user2Sexuality = user2.sexuality?.toLowerCase();
 
-    // If user is looking for dating only, filter by gender based on sexuality
-    if (userProfile.matchPreferences === 'dating') {
-      const userGender = userProfile.gender?.toLowerCase();
-      const userSexuality = userProfile.sexuality?.toLowerCase();
+    // Function to check if user1 would be romantically interested in user2
+    const isAttracted = (person, target) => {
+      const personSexuality = person.sexuality?.toLowerCase();
+      const personGender = person.gender?.toLowerCase();
+      const targetGender = target.gender?.toLowerCase();
 
-      return candidates.filter(candidate => {
-        const candidateGender = candidate.gender?.toLowerCase();
+      switch (personSexuality) {
+        case 'straight':
+          if (personGender === 'man') return targetGender === 'woman';
+          if (personGender === 'woman') return targetGender === 'man';
+          return true; // For non-binary users who are straight
         
-        // Handle different sexualities
-        switch (userSexuality) {
-          case 'straight':
-            // Straight users prefer opposite gender
-            if (userGender === 'man') return candidateGender === 'woman';
-            if (userGender === 'woman') return candidateGender === 'man';
-            // For non-binary users who are straight, show all genders
-            return true;
-          
-          case 'gay':
-          case 'lesbian':
-            // Gay/lesbian users prefer same gender
-            return candidateGender === userGender;
-          
-          case 'bisexual':
-          case 'pansexual':
-          case 'queer':
-            // Bisexual/pansexual/queer users can match with any gender
-            return true;
-          
-          default:
-            // For unknown sexualities, show all genders
-            return true;
-        }
-      });
-    }
+        case 'gay':
+          if (personGender === 'man') return targetGender === 'man';
+          return false;
+        
+        case 'lesbian':
+          if (personGender === 'woman') return targetGender === 'woman';
+          return false;
+        
+        case 'bisexual':
+        case 'pansexual':
+        case 'queer':
+          return true; // Attracted to all genders
+        
+        default:
+          return true; // Unknown sexuality, assume compatible
+      }
+    };
 
-    // Default: return all candidates
-    return candidates;
+    // Both users must be attracted to each other for romantic compatibility
+    return isAttracted(user1, user2) && isAttracted(user2, user1);
+  }
+
+  // Filter users based on mutual match preferences and romantic compatibility
+  filterByGenderAndSexuality(userProfile, candidates) {
+    return candidates.filter(candidate => {
+      const userPrefs = userProfile.matchPreferences;
+      const candidatePrefs = candidate.matchPreferences;
+
+      // Case 1: Both looking for friends only - always compatible
+      if (userPrefs === 'friends' && candidatePrefs === 'friends') {
+        return true;
+      }
+
+      // Case 2: Both looking for dating only - must be romantically compatible
+      if (userPrefs === 'dating' && candidatePrefs === 'dating') {
+        return this.areRomanticallyCompatible(userProfile, candidate);
+      }
+
+      // Case 3: One looking for friends, other looking for dating - not compatible
+      if ((userPrefs === 'friends' && candidatePrefs === 'dating') ||
+          (userPrefs === 'dating' && candidatePrefs === 'friends')) {
+        return false;
+      }
+
+      // Case 4: One or both looking for "both"
+      if (userPrefs === 'both' || candidatePrefs === 'both') {
+        // If one person only wants dating, they must be romantically compatible
+        if (userPrefs === 'dating' || candidatePrefs === 'dating') {
+          return this.areRomanticallyCompatible(userProfile, candidate);
+        }
+        // If neither exclusively wants dating, they can at least be friends
+        return true;
+      }
+
+      // Default: compatible
+      return true;
+    });
   }
 
   // New method for search functionality

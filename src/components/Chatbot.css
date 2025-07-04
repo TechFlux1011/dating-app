@@ -348,4 +348,86 @@
   .example-text {
     font-size: 0.8rem;
   }
+}
+
+/* Button Options */
+.button-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.option-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 20px;
+  border: 2px solid #e9ecef;
+  border-radius: 15px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.option-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.option-button.dating {
+  border-color: #ff6b9d;
+}
+
+.option-button.dating:hover {
+  background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+  color: white;
+  border-color: #ff6b9d;
+}
+
+.option-button.friends {
+  border-color: #4ecdc4;
+}
+
+.option-button.friends:hover {
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  color: white;
+  border-color: #4ecdc4;
+}
+
+.option-button.both {
+  border-color: #667eea;
+}
+
+.option-button.both:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.option-subtitle {
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.8;
+  margin-top: 5px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .button-options {
+    gap: 10px;
+  }
+  
+  .option-button {
+    padding: 15px 18px;
+    font-size: 0.9rem;
+  }
+  
+  .option-subtitle {
+    font-size: 0.75rem;
+  }
 } 

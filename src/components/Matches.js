@@ -1,8 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Matches.css';
 
-const Matches = ({ matches, userProfile, onReset, compact = false }) => {
+const Matches = ({ matches, userProfile, onReset, compact = false, onOpenMessages }) => {
   const [selectedMatch, setSelectedMatch] = useState(null);
+  const [mutualLikes, setMutualLikes] = useState(new Set());
+
+  // Load saved likes from localStorage
+  useEffect(() => {
+    const savedLikes = JSON.parse(localStorage.getItem('userLikes') || '[]');
+    setMutualLikes(new Set(savedLikes));
+  }, []);
+
+  // Save to localStorage whenever mutualLikes change
+  useEffect(() => {
+    localStorage.setItem('userLikes', JSON.stringify([...mutualLikes]));
+  }, [mutualLikes]);
 
   const handleMatchClick = (match) => {
     setSelectedMatch(match);
@@ -10,6 +22,57 @@ const Matches = ({ matches, userProfile, onReset, compact = false }) => {
 
   const closeModal = () => {
     setSelectedMatch(null);
+  };
+
+  const handleLike = (match) => {
+    // For now, automatically create mutual like
+    const likeKey = `${userProfile.id}_${match.id}`;
+    setMutualLikes(prev => new Set([...prev, likeKey]));
+    
+    // Initialize empty chat for this match
+    const savedChatMessages = JSON.parse(localStorage.getItem('chatMessages') || '{}');
+    if (!savedChatMessages[likeKey]) {
+      savedChatMessages[likeKey] = [];
+      localStorage.setItem('chatMessages', JSON.stringify(savedChatMessages));
+    }
+    
+    // Trigger refresh of message counts
+    window.dispatchEvent(new Event('refreshMessageCounts'));
+  };
+
+  const handlePass = (match) => {
+    // If the user had liked this match, remove the like
+    if (match && isLiked(match)) {
+      const likeKey = `${userProfile.id}_${match.id}`;
+      setMutualLikes(prev => {
+        const newLikes = new Set(prev);
+        newLikes.delete(likeKey);
+        return newLikes;
+      });
+      
+      // Also remove the chat messages for this match
+      const savedChatMessages = JSON.parse(localStorage.getItem('chatMessages') || '{}');
+      delete savedChatMessages[likeKey];
+      localStorage.setItem('chatMessages', JSON.stringify(savedChatMessages));
+      
+      // Trigger refresh of message counts
+      window.dispatchEvent(new Event('refreshMessageCounts'));
+    }
+    
+    closeModal();
+  };
+
+  const handleStartChat = (match) => {
+    // Open messages page with specific match
+    if (onOpenMessages) {
+      onOpenMessages(match);
+    }
+    closeModal();
+  };
+
+  const isLiked = (match) => {
+    const likeKey = `${userProfile.id}_${match.id}`;
+    return mutualLikes.has(likeKey);
   };
 
   const getMatchScore = (match) => {
@@ -128,8 +191,27 @@ const Matches = ({ matches, userProfile, onReset, compact = false }) => {
             </div>
             
             <div className="modal-footer">
-              <button className="like-button">💕 Like</button>
-              <button className="pass-button">👎 Pass</button>
+              {isLiked(selectedMatch) ? (
+                <button 
+                  className="message-button"
+                  onClick={() => handleStartChat(selectedMatch)}
+                >
+                  💬 Message
+                </button>
+              ) : (
+                <button 
+                  className="like-button"
+                  onClick={() => handleLike(selectedMatch)}
+                >
+                  💕 Like
+                </button>
+              )}
+              <button 
+                className="pass-button"
+                onClick={() => handlePass(selectedMatch)}
+              >
+                👎 Pass
+              </button>
             </div>
           </div>
         </div>

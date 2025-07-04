@@ -3,10 +3,10 @@ import './App.css';
 import Chatbot from './components/Chatbot';
 import Matches from './components/Matches';
 import UserProfile from './components/UserProfile';
-import Meetups from './components/Meetups';
-import Settings from './components/Settings';
 import BottomNavBar from './components/BottomNavBar';
 import Search from './components/Search';
+import Messages from './components/Messages';
+import MessagesPage from './components/MessagesPage';
 import { TagExtractor } from './utils/tagExtractor';
 import { MatchingEngine } from './utils/matchingEngine';
 import { MockDataGenerator } from './utils/mockData';
@@ -30,6 +30,8 @@ function App() {
   const [allUsers, setAllUsers] = useState([]);
   const [matches, setMatches] = useState([]);
   const [mockDataLoaded, setMockDataLoaded] = useState(false);
+  const [showMessagesPage, setShowMessagesPage] = useState(false);
+  const [selectedChatMatch, setSelectedChatMatch] = useState(null);
 
   // Load existing users from localStorage on component mount
   useEffect(() => {
@@ -156,6 +158,24 @@ function App() {
     }
   };
 
+  const handleMessageClick = (match = null) => {
+    setShowMessagesPage(true);
+    setSelectedChatMatch(match);
+    // Trigger refresh of message counts when messages page is opened
+    setTimeout(() => {
+      window.dispatchEvent(new Event('refreshMessageCounts'));
+    }, 100);
+  };
+
+  const handleBackFromMessages = () => {
+    setShowMessagesPage(false);
+    setSelectedChatMatch(null);
+    // Trigger refresh of message counts when returning from messages page
+    setTimeout(() => {
+      window.dispatchEvent(new Event('refreshMessageCounts'));
+    }, 100);
+  };
+
   const renderWelcomeScreen = () => (
     <div className="welcome-screen">
       <h1>💕 HeartChat</h1>
@@ -212,6 +232,7 @@ function App() {
             matches={matches} 
             userProfile={userProfile}
             onReset={resetApp}
+            onOpenMessages={handleMessageClick}
           />
         );
       case 'search':
@@ -219,21 +240,6 @@ function App() {
           <Search 
             userProfiles={allUsers}
             currentUser={userProfile}
-          />
-        );
-      case 'meetups':
-        return (
-          <Meetups 
-            currentUser={userProfile}
-            userProfiles={allUsers}
-            matches={matches}
-          />
-        );
-      case 'settings':
-        return (
-          <Settings 
-            currentUser={userProfile}
-            onUpdateUser={setUserProfile}
           />
         );
       default:
@@ -252,13 +258,27 @@ function App() {
       case 'app':
         return (
           <div className="app-container">
-            <div className="main-content">
-              {renderMainApp()}
-            </div>
-            <BottomNavBar 
-              activeTab={activeTab} 
-              onTabChange={handleTabChange}
-            />
+            {showMessagesPage ? (
+              <MessagesPage 
+                onBack={handleBackFromMessages} 
+                selectedMatch={selectedChatMatch}
+                userProfile={userProfile}
+                allUsers={allUsers}
+              />
+            ) : (
+              <>
+                <div className="main-content">
+                  {renderMainApp()}
+                </div>
+                <Messages 
+                  onMessageClick={handleMessageClick}
+                />
+                <BottomNavBar 
+                  activeTab={activeTab} 
+                  onTabChange={handleTabChange}
+                />
+              </>
+            )}
           </div>
         );
       default:

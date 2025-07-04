@@ -336,6 +336,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+  flex: 1;
 }
 
 .like-button:hover {
@@ -354,6 +355,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  flex: 1;
 }
 
 .pass-button:hover {
@@ -394,8 +396,8 @@
     gap: 15px;
   }
   
-  .like-button, .pass-button {
-    width: 100%;
+  .like-button, .pass-button, .message-button {
+    flex: 1;
   }
 }
 
@@ -455,4 +457,26 @@
 .matches-container.compact .view-profile-btn {
   padding: 8px 16px;
   font-size: 0.9rem;
-} 
+}
+
+/* Message Button */
+.message-button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  flex: 1;
+}
+
+.message-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+ 

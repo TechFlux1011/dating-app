@@ -185,6 +185,42 @@ const Chatbot = ({ onComplete }) => {
     addExamplesMessage();
   };
 
+  const handleButtonClick = (value) => {
+    const currentField = conversationFlow[currentStep].field;
+    const updatedUserData = {
+      ...userData,
+      [currentField]: value
+    };
+
+    setUserData(updatedUserData);
+    addUserMessage(value);
+    setShowExamples(false);
+
+    // Move to next step
+    if (currentStep < conversationFlow.length - 1) {
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      
+      // Replace {name} placeholder in bot message
+      let botMessage = conversationFlow[nextStep].bot;
+      if (updatedUserData.name) {
+        botMessage = botMessage.replace('{name}', updatedUserData.name);
+      }
+      
+      setTimeout(() => {
+        addBotMessage(botMessage);
+      }, 1500);
+    } else {
+      // Conversation complete
+      setTimeout(() => {
+        addBotMessage("Perfect! 🎉 I've got a great understanding of who you are and what you're looking for. Let me analyze your responses and find your matches...");
+        setTimeout(() => {
+          onComplete(updatedUserData);
+        }, 2000);
+      }, 1500);
+    }
+  };
+
   const renderMessage = (message) => {
     if (message.isExamples) {
       return (
@@ -256,23 +292,50 @@ const Chatbot = ({ onComplete }) => {
           </button>
         )}
         
-        <div className="input-row">
-          <textarea
-            value={currentInput}
-            onChange={(e) => setCurrentInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={conversationFlow[currentStep]?.placeholder || 'Type your message...'}
-            className="message-input"
-            rows="3"
-          />
-          <button 
-            onClick={handleSendMessage}
-            className="send-button"
-            disabled={!currentInput.trim()}
-          >
-            Send 📨
-          </button>
-        </div>
+        {/* Show buttons for match preferences step */}
+        {currentStep === 1 && conversationFlow[currentStep].field === 'matchPreferences' ? (
+          <div className="button-options">
+            <button 
+              onClick={() => handleButtonClick('dating')}
+              className="option-button dating"
+            >
+              💕 Dating
+              <span className="option-subtitle">Looking for romantic connections</span>
+            </button>
+            <button 
+              onClick={() => handleButtonClick('friends')}
+              className="option-button friends"
+            >
+              👥 Friends
+              <span className="option-subtitle">Seeking platonic friendships</span>
+            </button>
+            <button 
+              onClick={() => handleButtonClick('both')}
+              className="option-button both"
+            >
+              🌟 Both
+              <span className="option-subtitle">Open to romance & friendship</span>
+            </button>
+          </div>
+        ) : (
+          <div className="input-row">
+            <textarea
+              value={currentInput}
+              onChange={(e) => setCurrentInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={conversationFlow[currentStep]?.placeholder || 'Type your message...'}
+              className="message-input"
+              rows="3"
+            />
+            <button 
+              onClick={handleSendMessage}
+              className="send-button"
+              disabled={!currentInput.trim()}
+            >
+              Send 📨
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
