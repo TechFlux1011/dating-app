@@ -7,7 +7,7 @@ const Settings = ({ currentUser, onUpdateUser }) => {
     locationSharing: true,
     matchPreferences: 'both', // dating, friends, both
     ageRange: { min: 18, max: 35 },
-    maxDistance: 50,
+    maxDistance: 30,
     showMeIn: 'both' // dating, friends, both
   });
 
@@ -167,7 +167,7 @@ const Settings = ({ currentUser, onUpdateUser }) => {
               <input
                 type="range"
                 min="1"
-                max="100"
+                max="60"
                 value={settings.maxDistance}
                 onChange={(e) => setSettings({
                   ...settings,
@@ -175,7 +175,7 @@ const Settings = ({ currentUser, onUpdateUser }) => {
                 })}
                 className="range-slider"
               />
-              <span className="range-value">{settings.maxDistance} km</span>
+              <span className="range-value">{settings.maxDistance} miles</span>
             </div>
           </div>
         </div>
