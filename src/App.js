@@ -92,6 +92,49 @@ function App() {
     const userMatches = matchingEngine.findMatches(newProfile, allUsers);
     setMatches(userMatches);
     
+    // For testing: check if any mock profiles have already "liked" this user and create mutual matches
+    const savedUserLikes = JSON.parse(localStorage.getItem('userLikes') || '{}');
+    let newMutualMatches = 0;
+    
+    Object.keys(savedUserLikes).forEach(mockUserId => {
+      const mockUserLikes = savedUserLikes[mockUserId];
+      if (mockUserLikes.includes(newProfile.id)) {
+        // This mock user has already liked the new user, create a mutual match
+        const mutualMatchKey = [newProfile.id, mockUserId].sort().join('_');
+        
+        // Add to mutual matches
+        const savedMutualMatches = JSON.parse(localStorage.getItem('mutualMatches') || '[]');
+        if (!savedMutualMatches.includes(mutualMatchKey)) {
+          savedMutualMatches.push(mutualMatchKey);
+          localStorage.setItem('mutualMatches', JSON.stringify(savedMutualMatches));
+          
+          // Create initial chat with welcome message
+          const savedChatMessages = JSON.parse(localStorage.getItem('chatMessages') || '{}');
+          if (!savedChatMessages[mutualMatchKey]) {
+            savedChatMessages[mutualMatchKey] = [{
+              id: Date.now() + Math.random(),
+              text: "Someone you like, likes you too! Send them a message to get things started.",
+              sender: 'system',
+              timestamp: Date.now(),
+              read: false
+            }];
+            localStorage.setItem('chatMessages', JSON.stringify(savedChatMessages));
+          }
+          
+          newMutualMatches++;
+        }
+      }
+    });
+    
+    if (newMutualMatches > 0) {
+      console.log(`🎉 You already have ${newMutualMatches} mutual matches waiting for you!`);
+    }
+    
+    // Trigger refresh of message counts
+    setTimeout(() => {
+      window.dispatchEvent(new Event('refreshMessageCounts'));
+    }, 100);
+    
     setCurrentPhase('app');
     setActiveTab('matches');
   };
@@ -106,6 +149,14 @@ function App() {
     
     setAllUsers(updatedUsers);
     setMockDataLoaded(true);
+    
+    // Also generate mock likes and mutual matches
+    mockGenerator.generateMockLikes();
+    
+    // Trigger refresh of message counts
+    setTimeout(() => {
+      window.dispatchEvent(new Event('refreshMessageCounts'));
+    }, 100);
   };
 
   const clearMockData = () => {
@@ -113,6 +164,15 @@ function App() {
     const realUsers = allUsers.filter(user => !user.isMock);
     setAllUsers(realUsers);
     setMockDataLoaded(false);
+    
+    // Clear likes and messages too
+    const mockGenerator = new MockDataGenerator();
+    mockGenerator.clearAllMockData();
+    
+    // Trigger refresh of message counts
+    setTimeout(() => {
+      window.dispatchEvent(new Event('refreshMessageCounts'));
+    }, 100);
   };
 
   const loadTestProfiles = () => {

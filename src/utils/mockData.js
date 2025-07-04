@@ -261,4 +261,77 @@ export class MockDataGenerator {
       profiles[10] // Maya (environmental, outdoors, authentic)
     ];
   }
+
+  // Test the mutual matching system by generating some mock likes
+  generateMockLikes() {
+    // This creates realistic like patterns between users
+    const mockLikes = {
+      // Each user ID maps to an array of user IDs they've liked
+      '1': ['3', '7', '12'], // Alex likes Maya, Jordan, and Sam
+      '3': ['1', '5', '15'], // Maya likes Alex, Taylor, and Casey  
+      '5': ['3', '9', '11'], // Taylor likes Maya, River, and Morgan
+      '7': ['1', '4', '16'], // Jordan likes Alex, Quinn, and Alex P
+      '9': ['5', '6', '13'], // River likes Taylor, Dakota, and Jamie
+      '11': ['12', '14', '17'], // Morgan likes Sam, Avery, and Chris
+      '12': ['1', '11', '18'], // Sam likes Alex, Morgan, and Drew
+      '13': ['9', '15', '2'], // Jamie likes River, Casey, and Skyler
+      '15': ['3', '13', '4'], // Casey likes Maya, Jamie, and Quinn
+      '16': ['7', '8', '10'], // Alex P likes Jordan, Phoenix, and Riley
+    };
+
+    // Store mock likes in localStorage
+    localStorage.setItem('userLikes', JSON.stringify(mockLikes));
+
+    // Generate mutual matches based on reciprocal likes
+    const mutualMatches = [];
+    Object.keys(mockLikes).forEach(userId => {
+      const userLikes = mockLikes[userId];
+      userLikes.forEach(likedUserId => {
+        // Check if the liked user also likes this user back
+        const likedUserLikes = mockLikes[likedUserId] || [];
+        if (likedUserLikes.includes(userId)) {
+          // It's a mutual match! Create the key
+          const mutualMatchKey = [userId, likedUserId].sort().join('_');
+          if (!mutualMatches.includes(mutualMatchKey)) {
+            mutualMatches.push(mutualMatchKey);
+          }
+        }
+      });
+    });
+
+    // Store mutual matches
+    localStorage.setItem('mutualMatches', JSON.stringify(mutualMatches));
+
+    // Create initial chat messages for each mutual match
+    const chatMessages = {};
+    mutualMatches.forEach(mutualMatchKey => {
+      chatMessages[mutualMatchKey] = [{
+        id: Date.now() + Math.random(),
+        text: "Someone you like, likes you too! Send them a message to get things started.",
+        sender: 'system',
+        timestamp: Date.now() - Math.random() * 86400000, // Random time in last 24 hours
+        read: false
+      }];
+    });
+
+    // Store chat messages
+    localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+
+    console.log(`Generated ${Object.keys(mockLikes).length} users with likes`);
+    console.log(`Created ${mutualMatches.length} mutual matches`);
+    
+    return {
+      likes: mockLikes,
+      mutualMatches: mutualMatches,
+      chatMessages: chatMessages
+    };
+  }
+
+  // Clear all mock data including likes and messages
+  clearAllMockData() {
+    localStorage.removeItem('userLikes');
+    localStorage.removeItem('mutualMatches');
+    localStorage.removeItem('chatMessages');
+    console.log('Cleared all mock data including likes and messages');
+  }
 } 

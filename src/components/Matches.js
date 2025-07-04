@@ -3,18 +3,28 @@ import './Matches.css';
 
 const Matches = ({ matches, userProfile, onReset, compact = false }) => {
   const [selectedMatch, setSelectedMatch] = useState(null);
-  const [mutualLikes, setMutualLikes] = useState(new Set());
+  const [userLikes, setUserLikes] = useState(new Set()); // Likes given by current user
+  const [mutualMatches, setMutualMatches] = useState(new Set()); // Mutual matches
 
   // Load saved likes from localStorage
   useEffect(() => {
-    const savedLikes = JSON.parse(localStorage.getItem('userLikes') || '[]');
-    setMutualLikes(new Set(savedLikes));
-  }, []);
+    const savedUserLikes = JSON.parse(localStorage.getItem('userLikes') || '{}');
+    const currentUserLikes = savedUserLikes[userProfile.id] || [];
+    setUserLikes(new Set(currentUserLikes));
+    
+    // Calculate mutual matches
+    const savedMutualMatches = JSON.parse(localStorage.getItem('mutualMatches') || '[]');
+    setMutualMatches(new Set(savedMutualMatches));
+  }, [userProfile.id]);
 
-  // Save to localStorage whenever mutualLikes change
+  // Save likes to localStorage whenever userLikes change
   useEffect(() => {
-    localStorage.setItem('userLikes', JSON.stringify([...mutualLikes]));
-  }, [mutualLikes]);
+    if (userProfile.id) {
+      const savedUserLikes = JSON.parse(localStorage.getItem('userLikes') || '{}');
+      savedUserLikes[userProfile.id] = Array.from(userLikes);
+      localStorage.setItem('userLikes', JSON.stringify(savedUserLikes));
+    }
+  }, [userLikes, userProfile.id]);
 
   const handleMatchClick = (match) => {
     setSelectedMatch(match);
@@ -24,49 +34,159 @@ const Matches = ({ matches, userProfile, onReset, compact = false }) => {
     setSelectedMatch(null);
   };
 
-  const handleLike = (match) => {
-    // For now, automatically create mutual like
-    const likeKey = `${userProfile.id}_${match.id}`;
-    setMutualLikes(prev => new Set([...prev, likeKey]));
+  const checkForMutualMatch = (userId, likedUserId) => {
+    console.log(`🔍 checkForMutualMatch called: ${userId} → ${likedUserId}`);
     
-    // Initialize empty chat for this match
-    const savedChatMessages = JSON.parse(localStorage.getItem('chatMessages') || '{}');
-    if (!savedChatMessages[likeKey]) {
-      savedChatMessages[likeKey] = [];
-      localStorage.setItem('chatMessages', JSON.stringify(savedChatMessages));
+    // Check if the liked user has also liked the current user
+    const savedUserLikes = JSON.parse(localStorage.getItem('userLikes') || '{}');
+    const likedUserLikes = savedUserLikes[likedUserId] || [];
+    
+    console.log(`📋 ${likedUserId}'s likes:`, likedUserLikes);
+    console.log(`❓ Does ${likedUserId} like ${userId}?`, likedUserLikes.includes(userId));
+    
+    if (likedUserLikes.includes(userId)) {
+      // It's a mutual match! Create the chat
+      const mutualMatchKey = [userId, likedUserId].sort().join('_');
+      console.log(`🔗 Creating mutual match key: ${mutualMatchKey}`);
+      
+      // Add to mutual matches
+      const savedMutualMatches = JSON.parse(localStorage.getItem('mutualMatches') || '[]');
+      if (!savedMutualMatches.includes(mutualMatchKey)) {
+        console.log(`✅ Creating new mutual match: ${mutualMatchKey}`);
+        savedMutualMatches.push(mutualMatchKey);
+        localStorage.setItem('mutualMatches', JSON.stringify(savedMutualMatches));
+        setMutualMatches(new Set(savedMutualMatches));
+        
+        // Create initial chat with welcome message
+        const savedChatMessages = JSON.parse(localStorage.getItem('chatMessages') || '{}');
+        if (!savedChatMessages[mutualMatchKey]) {
+          console.log(`💬 Creating initial chat message for ${mutualMatchKey}`);
+          savedChatMessages[mutualMatchKey] = [{
+            id: Date.now(),
+            text: "Someone you like, likes you too! Send them a message to get things started.",
+            sender: 'system',
+            timestamp: Date.now(),
+            read: false
+          }];
+          localStorage.setItem('chatMessages', JSON.stringify(savedChatMessages));
+        } else {
+          console.log(`💬 Chat already exists for ${mutualMatchKey}`);
+        }
+        
+        // Trigger refresh of message counts
+        window.dispatchEvent(new Event('refreshMessageCounts'));
+        
+        return true; // It's a new mutual match
+      } else {
+        console.log(`⚠️ Mutual match already exists: ${mutualMatchKey}`);
+        return true; // It's already a mutual match
+      }
     }
     
-    // Trigger refresh of message counts
-    window.dispatchEvent(new Event('refreshMessageCounts'));
+    return false; // Not a mutual match yet
   };
 
-  const handlePass = (match) => {
-    // If the user had liked this match, remove the like
-    if (match && isLiked(match)) {
-      const likeKey = `${userProfile.id}_${match.id}`;
-      setMutualLikes(prev => {
+  const handleLike = (match) => {
+    if (isLiked(match)) {
+      // User is trying to unlike
+      setUserLikes(prev => {
         const newLikes = new Set(prev);
-        newLikes.delete(likeKey);
+        newLikes.delete(match.id);
         return newLikes;
       });
       
-      // Also remove the chat messages for this match
-      const savedChatMessages = JSON.parse(localStorage.getItem('chatMessages') || '{}');
-      delete savedChatMessages[likeKey];
-      localStorage.setItem('chatMessages', JSON.stringify(savedChatMessages));
+      // Remove from mutual matches if it exists
+      const mutualMatchKey = [userProfile.id, match.id].sort().join('_');
+      if (mutualMatches.has(mutualMatchKey)) {
+        setMutualMatches(prev => {
+          const newMatches = new Set(prev);
+          newMatches.delete(mutualMatchKey);
+          return newMatches;
+        });
+        
+        // Remove from localStorage
+        const savedMutualMatches = JSON.parse(localStorage.getItem('mutualMatches') || '[]');
+        const updatedMatches = savedMutualMatches.filter(key => key !== mutualMatchKey);
+        localStorage.setItem('mutualMatches', JSON.stringify(updatedMatches));
+        
+        // Remove chat messages
+        const savedChatMessages = JSON.parse(localStorage.getItem('chatMessages') || '{}');
+        delete savedChatMessages[mutualMatchKey];
+        localStorage.setItem('chatMessages', JSON.stringify(savedChatMessages));
+        
+        // Also remove the automatic like back from the mock profile
+        if (match.isMock) {
+          const savedUserLikes = JSON.parse(localStorage.getItem('userLikes') || '{}');
+          if (savedUserLikes[match.id]) {
+            savedUserLikes[match.id] = savedUserLikes[match.id].filter(id => id !== userProfile.id);
+            localStorage.setItem('userLikes', JSON.stringify(savedUserLikes));
+          }
+        }
+        
+        // Trigger refresh of message counts
+        window.dispatchEvent(new Event('refreshMessageCounts'));
+      }
+    } else {
+      // User is liking
+      console.log(`👍 User is liking ${match.name} (ID: ${match.id})`);
+      setUserLikes(prev => new Set([...prev, match.id]));
       
-      // Trigger refresh of message counts
-      window.dispatchEvent(new Event('refreshMessageCounts'));
+      // For testing purposes: if this is a mock profile, automatically make them like the user back
+      if (match.isMock) {
+        console.log(`🤖 ${match.name} is a mock profile, automatically liking back...`);
+        const savedUserLikes = JSON.parse(localStorage.getItem('userLikes') || '{}');
+        
+        // Initialize the mock profile's likes if they don't exist
+        if (!savedUserLikes[match.id]) {
+          savedUserLikes[match.id] = [];
+        }
+        
+        // Add the current user to the mock profile's likes (if not already there)
+        if (!savedUserLikes[match.id].includes(userProfile.id)) {
+          savedUserLikes[match.id].push(userProfile.id);
+          localStorage.setItem('userLikes', JSON.stringify(savedUserLikes));
+          console.log(`💾 Saved ${match.name}'s like for user ${userProfile.id}`);
+        } else {
+          console.log(`⚠️ ${match.name} already liked user ${userProfile.id}`);
+        }
+      } else {
+        console.log(`👤 ${match.name} is not a mock profile, no automatic like-back`);
+      }
+      
+      // Check for mutual match (this will now always be true for mock profiles)
+      console.log(`🔍 Checking for mutual match between ${userProfile.id} and ${match.id}...`);
+      const isMutualMatch = checkForMutualMatch(userProfile.id, match.id);
+      
+      if (isMutualMatch) {
+        // Show a celebration or notification that it's a match
+        console.log(`🎉 It's a match with ${match.name}!`);
+        console.log(`💬 Chat should now be created in Messages`);
+        
+        // Show a brief toast notification
+        if (match.isMock) {
+          console.log('💡 Mock profiles automatically like you back for testing purposes!');
+        }
+      } else {
+        console.log(`❌ No mutual match yet with ${match.name}`);
+      }
     }
-    
+  };
+
+  const handlePass = (match) => {
+    // Remove like if it exists
+    if (isLiked(match)) {
+      handleLike(match); // This will unlike the user
+    }
     closeModal();
   };
 
-
-
   const isLiked = (match) => {
-    const likeKey = `${userProfile.id}_${match.id}`;
-    return mutualLikes.has(likeKey);
+    return userLikes.has(match.id);
+  };
+
+  const isMutualMatch = (match) => {
+    const mutualMatchKey = [userProfile.id, match.id].sort().join('_');
+    return mutualMatches.has(mutualMatchKey);
   };
 
   const getMatchScore = (match) => {
@@ -102,13 +222,14 @@ const Matches = ({ matches, userProfile, onReset, compact = false }) => {
           {matches.map((match, index) => (
             <div 
               key={match.id} 
-              className="match-card"
+              className={`match-card ${isMutualMatch(match) ? 'mutual-match' : ''}`}
               onClick={() => handleMatchClick(match)}
             >
               <div className="match-header">
                 <h3>{match.name}</h3>
                 <div className="match-score">
                   {getMatchScore(match)}% Match
+                  {isMutualMatch(match) && <span className="mutual-badge">💕 Match!</span>}
                 </div>
               </div>
               
@@ -147,6 +268,7 @@ const Matches = ({ matches, userProfile, onReset, compact = false }) => {
               <h2>{selectedMatch.name}</h2>
               <div className="match-score-large">
                 {getMatchScore(selectedMatch)}% Match
+                {isMutualMatch(selectedMatch) && <span className="mutual-badge-large">💕 It's a Match!</span>}
               </div>
             </div>
             

@@ -1,72 +1,85 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './MessagesPage.css';
 
 const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
   const [messages, setMessages] = useState([]);
+  
+  // Chat interface state variables (these were missing and causing the errors)
   const [showChat, setShowChat] = useState(false);
   const [currentMatch, setCurrentMatch] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
 
-  useEffect(() => {
-    const savedLikes = JSON.parse(localStorage.getItem('userLikes') || '[]');
+  const loadMessages = useCallback(() => {
+    if (!userProfile) return;
+
+    // Load mutual matches from localStorage
+    const savedMutualMatches = JSON.parse(localStorage.getItem('mutualMatches') || '[]');
     const savedChatMessages = JSON.parse(localStorage.getItem('chatMessages') || '{}');
-    
-    // Create messages preview from actual chats
-    const messagesList = savedLikes.map(likeKey => {
-      const chatHistory = savedChatMessages[likeKey] || [];
-      const lastMessage = chatHistory[chatHistory.length - 1];
-      const [, matchId] = likeKey.split('_');
+
+    console.log(`📱 MessagesPage: Loading messages for user ${userProfile.id}`);
+    console.log(`📋 Found ${savedMutualMatches.length} mutual matches:`, savedMutualMatches);
+    console.log(`💬 Chat messages data:`, savedChatMessages);
+
+    // Create messages list from mutual matches
+    const messagesList = savedMutualMatches.map(mutualMatchKey => {
+      const [userId1, userId2] = mutualMatchKey.split('_');
+      const matchUserId = userId1 === userProfile.id ? userId2 : userId1;
       
-      // Find the actual match user
-      const matchUser = allUsers?.find(user => user.id === matchId);
-      const matchName = matchUser ? matchUser.name : `Match ${matchId}`;
+      // Find the match user
+      const matchUser = allUsers?.find(user => user.id === matchUserId);
+      const matchName = matchUser ? matchUser.name : `Match ${matchUserId}`;
       
-      // Check if this conversation has unread messages
-      const hasUnreadMessages = chatHistory.some(msg => !msg.read);
+      // Get chat history for this match
+      const chatHistory = savedChatMessages[mutualMatchKey] || [];
       
-      if (lastMessage) {
-        return {
-          id: likeKey,
-          sender: matchName,
-          message: lastMessage.text,
-          timestamp: lastMessage.timestamp,
-          read: lastMessage.read,
-          avatar: "💕",
-          matchUser: matchUser,
-          hasUnreadMessages: hasUnreadMessages
-        };
-      }
+      // Find the latest message
+      const latestMessage = chatHistory.length > 0 
+        ? chatHistory[chatHistory.length - 1] 
+        : { text: "Someone you like, likes you too! Send them a message to get things started.", timestamp: Date.now() };
+      
+      // Check if there are unread messages (excluding system messages)
+      const unreadMessages = chatHistory.filter(msg => msg.sender !== 'system' && msg.sender !== userProfile.id && !msg.read);
+      const hasUnreadMessages = unreadMessages.length > 0;
+      
+      // Check if this is a new match (no user messages sent yet)
+      const userMessages = chatHistory.filter(msg => msg.sender !== 'system');
+      const isNewMatch = userMessages.length === 0;
       
       return {
-        id: likeKey,
-        sender: matchName,
-        message: "You matched! Start the conversation.",
-        timestamp: Date.now(),
-        read: false, // New matches should be marked as unread
-        avatar: "💕",
-        matchUser: matchUser,
-        hasUnreadMessages: false,
-        isNewMatch: true
+        id: mutualMatchKey,
+        matchUser,
+        matchName,
+        lastMessage: latestMessage.text,
+        timestamp: latestMessage.timestamp,
+        hasUnreadMessages,
+        isNewMatch,
+        read: !hasUnreadMessages && !isNewMatch
       };
     });
-    
+
+    // Sort by timestamp (newest first)
+    messagesList.sort((a, b) => b.timestamp - a.timestamp);
+    console.log(`📝 MessagesPage: Setting ${messagesList.length} messages:`, messagesList);
     setMessages(messagesList);
-    
-    // If a specific match was selected, open that chat
-    if (selectedMatch && userProfile) {
-      const likeKey = `${userProfile.id}_${selectedMatch.id}`;
-      const chatHistory = savedChatMessages[likeKey] || [];
-      setCurrentMatch(selectedMatch);
-      setChatMessages(chatHistory);
-      setShowChat(true);
-    } else {
-      // Make sure we're showing the messages list
-      setShowChat(false);
-      setCurrentMatch(null);
-      setChatMessages([]);
-    }
+  }, [userProfile, allUsers]);
+
+  useEffect(() => {
+    loadMessages();
   }, [selectedMatch, userProfile, allUsers]);
+
+  // Listen for real-time updates when new mutual matches are created
+  useEffect(() => {
+    const handleRefresh = () => {
+      console.log('📱 MessagesPage: Refreshing messages due to new match');
+      loadMessages();
+    };
+
+    window.addEventListener('refreshMessageCounts', handleRefresh);
+    return () => {
+      window.removeEventListener('refreshMessageCounts', handleRefresh);
+    };
+  }, [userProfile, allUsers]);
 
   const formatTime = (timestamp) => {
     const now = Date.now();
@@ -82,14 +95,14 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
   };
 
   const handleMessageClick = (messageId) => {
-    // Mark all messages in this conversation as read
+    // Mark all user messages in this conversation as read (exclude system messages)
     const savedChatMessages = JSON.parse(localStorage.getItem('chatMessages') || '{}');
     const conversation = savedChatMessages[messageId] || [];
     
-    // Update read status for all messages in this conversation
+    // Update read status for all user messages in this conversation
     const updatedConversation = conversation.map(msg => ({
       ...msg,
-      read: true
+      read: msg.sender === 'system' ? msg.read : true
     }));
     
     // Save back to localStorage
@@ -110,16 +123,16 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
     // Also trigger custom refresh event
     window.dispatchEvent(new Event('refreshMessageCounts'));
     
-    // Open the chat for this conversation
-    const message = messages.find(msg => msg.id === messageId);
-    if (message && message.matchUser) {
-      setCurrentMatch(message.matchUser);
+    // Load the chat interface
+    const messageData = messages.find(msg => msg.id === messageId);
+    if (messageData) {
+      setCurrentMatch(messageData);
       setChatMessages(updatedConversation);
       setShowChat(true);
     }
   };
 
-  const handleBackToMessages = () => {
+  const handleBackFromChat = () => {
     setShowChat(false);
     setCurrentMatch(null);
     setChatMessages([]);
@@ -127,95 +140,85 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
   };
 
   const handleSendMessage = () => {
-    if (!newMessage.trim() || !currentMatch || !userProfile) return;
-    
-    const likeKey = `${userProfile.id}_${currentMatch.id}`;
-    const message = {
-      id: Date.now(),
+    if (!newMessage.trim() || !currentMatch) return;
+
+    const messageData = {
+      id: Date.now() + Math.random(),
       text: newMessage.trim(),
       sender: userProfile.id,
       timestamp: Date.now(),
       read: false
     };
 
+    // Add to chat messages
+    const updatedChatMessages = [...chatMessages, messageData];
+    setChatMessages(updatedChatMessages);
+    
+    // Save to localStorage
     const savedChatMessages = JSON.parse(localStorage.getItem('chatMessages') || '{}');
-    const updatedConversation = [...(savedChatMessages[likeKey] || []), message];
-    savedChatMessages[likeKey] = updatedConversation;
+    savedChatMessages[currentMatch.id] = updatedChatMessages;
     localStorage.setItem('chatMessages', JSON.stringify(savedChatMessages));
-
-    setChatMessages(updatedConversation);
+    
+    // Clear input
     setNewMessage('');
     
     // Trigger refresh of message counts
     window.dispatchEvent(new Event('refreshMessageCounts'));
   };
 
-  // If we're showing a specific chat
+  const formatMessageTime = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  // If chat is open, show the chat interface
   if (showChat && currentMatch) {
     return (
       <div className="messages-page">
-        <div className="messages-header">
-          <button onClick={handleBackToMessages} className="back-button">
+        <div className="chat-header">
+          <button onClick={handleBackFromChat} className="back-button">
             ←
           </button>
-          <h2>💬 {currentMatch.name}</h2>
+          <div className="chat-user-info">
+            <span className="chat-user-name">{currentMatch.matchName}</span>
+          </div>
         </div>
 
-        <div className="chat-content">
-          <div className="chat-messages">
-            {chatMessages.length === 0 ? (
-              <div className="no-chat-messages">
-                <div className="no-messages-icon">🎉</div>
-                <h3>You matched with {currentMatch.name}!</h3>
-                <p>Start the conversation and get to know each other.</p>
-              </div>
-            ) : (
-              chatMessages.map(message => (
-                <div 
-                  key={message.id} 
-                  className={`chat-message ${message.sender === userProfile.id ? 'sent' : 'received'}`}
-                >
-                  <div className="message-bubble">
-                    {message.text}
-                  </div>
-                  <div className="message-time">
-                    {new Date(message.timestamp).toLocaleTimeString([], { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-          
-          <div className="chat-input">
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type a message..."
-              className="message-input"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleSendMessage();
-                }
-              }}
-            />
-            <button 
-              className="send-message-btn"
-              onClick={handleSendMessage}
-              disabled={!newMessage.trim()}
+        <div className="chat-messages">
+          {chatMessages.map(msg => (
+            <div 
+              key={msg.id} 
+              className={`chat-message ${msg.sender === userProfile.id ? 'sent' : 'received'} ${msg.sender === 'system' ? 'system' : ''}`}
             >
-              Send
-            </button>
-          </div>
+              <div className="message-bubble">
+                <div className="message-text">{msg.text}</div>
+                <div className="message-time">{formatMessageTime(msg.timestamp)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="chat-input-container">
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type a message..."
+            className="chat-input"
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+          />
+          <button 
+            onClick={handleSendMessage}
+            className="send-button"
+            disabled={!newMessage.trim()}
+          >
+            Send
+          </button>
         </div>
       </div>
     );
   }
 
-  // Otherwise, show the messages list
   return (
     <div className="messages-page">
       <div className="messages-header">
@@ -229,8 +232,8 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
         {messages.length === 0 ? (
           <div className="no-messages">
             <div className="no-messages-icon">💬</div>
-            <h3>No messages yet</h3>
-            <p>Start chatting with your matches to see messages here!</p>
+            <h3>No matches yet</h3>
+            <p>When you and someone else like each other, you'll be able to chat here!</p>
           </div>
         ) : (
           <div className="messages-list">
@@ -241,24 +244,22 @@ const MessagesPage = ({ onBack, selectedMatch, userProfile, allUsers }) => {
                 onClick={() => handleMessageClick(message.id)}
               >
                 <div className="message-avatar">
-                  {message.avatar}
+                  👤
                 </div>
-                <div className="message-info">
-                  <div className="message-sender">
-                    {message.sender}
-                    {(message.hasUnreadMessages || message.isNewMatch || !message.read) && (
-                      <span className="red-badge">
-                        {message.isNewMatch ? 'New' : 'Unread'}
-                      </span>
-                    )}
+                <div className="message-content">
+                  <div className="message-header">
+                    <span className="message-name">{message.matchName}</span>
+                    <span className="message-time">{formatTime(message.timestamp)}</span>
                   </div>
                   <div className="message-preview">
-                    {message.message}
-                  </div>
-                  <div className="message-time">
-                    {formatTime(message.timestamp)}
+                    {message.lastMessage}
                   </div>
                 </div>
+                {(message.hasUnreadMessages || message.isNewMatch) && (
+                  <div className="message-badge">
+                    {message.isNewMatch ? 'New' : 'Unread'}
+                  </div>
+                )}
               </div>
             ))}
           </div>

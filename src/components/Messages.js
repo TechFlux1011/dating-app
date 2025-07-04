@@ -7,26 +7,29 @@ const Messages = ({ onMessageClick }) => {
 
   useEffect(() => {
     const calculateCounts = () => {
-      // Get chat messages from localStorage
+      // Get mutual matches and chat messages from localStorage
+      const savedMutualMatches = JSON.parse(localStorage.getItem('mutualMatches') || '[]');
       const chatMessages = JSON.parse(localStorage.getItem('chatMessages') || '{}');
       
-      // Count unread messages
       let unreadMessages = 0;
-      Object.values(chatMessages).forEach(conversation => {
-        if (Array.isArray(conversation)) {
-          unreadMessages += conversation.filter(msg => !msg.read).length;
-        }
-      });
-      
-      // Get mutual likes (matches available for conversation)
-      const userLikes = JSON.parse(localStorage.getItem('userLikes') || '[]');
-      
-      // Count matches that have no messages yet (new matches to start conversations)
       let newMatches = 0;
-      userLikes.forEach(likeKey => {
-        const conversation = chatMessages[likeKey];
-        if (!conversation || conversation.length === 0) {
+      
+      savedMutualMatches.forEach(mutualMatchKey => {
+        const conversation = chatMessages[mutualMatchKey] || [];
+        
+        if (conversation.length === 0) {
+          // No messages at all - this is a bug, should have at least system message
+          return;
+        }
+        
+        // Check if this is a new match (only has system message)
+        const userMessages = conversation.filter(msg => msg.sender !== 'system');
+        if (userMessages.length === 0) {
           newMatches++;
+        } else {
+          // Count unread user messages (excluding system messages)
+          const unreadUserMessages = userMessages.filter(msg => !msg.read);
+          unreadMessages += unreadUserMessages.length;
         }
       });
       
@@ -42,7 +45,7 @@ const Messages = ({ onMessageClick }) => {
 
     // Listen for storage changes (when user actions occur in other components)
     const handleStorageChange = (e) => {
-      if (e.key === 'chatMessages' || e.key === 'userLikes') {
+      if (e.key === 'chatMessages' || e.key === 'mutualMatches') {
         calculateCounts();
       }
     };
