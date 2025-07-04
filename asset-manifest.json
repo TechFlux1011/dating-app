@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/heartchat-dating-app/static/css/main.0ce548d4.css",
-    "main.js": "/heartchat-dating-app/static/js/main.c5bd70cf.js",
-    "static/js/453.97d2ea88.chunk.js": "/heartchat-dating-app/static/js/453.97d2ea88.chunk.js",
-    "index.html": "/heartchat-dating-app/index.html",
-    "main.0ce548d4.css.map": "/heartchat-dating-app/static/css/main.0ce548d4.css.map",
-    "main.c5bd70cf.js.map": "/heartchat-dating-app/static/js/main.c5bd70cf.js.map",
-    "453.97d2ea88.chunk.js.map": "/heartchat-dating-app/static/js/453.97d2ea88.chunk.js.map"
+    "main.css": "./static/css/main.0ce548d4.css",
+    "main.js": "./static/js/main.e1ddf734.js",
+    "static/js/453.97d2ea88.chunk.js": "./static/js/453.97d2ea88.chunk.js",
+    "index.html": "./index.html",
+    "main.0ce548d4.css.map": "./static/css/main.0ce548d4.css.map",
+    "main.e1ddf734.js.map": "./static/js/main.e1ddf734.js.map",
+    "453.97d2ea88.chunk.js.map": "./static/js/453.97d2ea88.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.0ce548d4.css",
-    "static/js/main.c5bd70cf.js"
+    "static/js/main.e1ddf734.js"
   ]
 }
