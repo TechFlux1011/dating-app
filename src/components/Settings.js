@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Settings.css';
 
 const Settings = ({ currentUser, onUpdateUser }) => {
@@ -10,6 +10,17 @@ const Settings = ({ currentUser, onUpdateUser }) => {
     maxDistance: 30,
     showMeIn: 'both' // dating, friends, both
   });
+
+  // Load settings from localStorage when component mounts
+  useEffect(() => {
+    const savedSettings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+    if (Object.keys(savedSettings).length > 0) {
+      setSettings(prev => ({
+        ...prev,
+        ...savedSettings
+      }));
+    }
+  }, []);
 
   const handleSave = () => {
     localStorage.setItem('userSettings', JSON.stringify(settings));

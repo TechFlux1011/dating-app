@@ -17,6 +17,7 @@ function App() {
   const [userProfile, setUserProfile] = useState({
     id: null,
     name: '',
+    matchPreferences: 'both',
     age: '',
     sexuality: '',
     gender: '',
@@ -55,6 +56,7 @@ function App() {
     const newProfile = {
       id: Date.now().toString(),
       name: chatData.name,
+      matchPreferences: chatData.matchPreferences,
       age: chatData.age,
       sexuality: chatData.sexuality,
       gender: chatData.gender,
@@ -67,6 +69,15 @@ function App() {
       completed: true,
       isMock: false
     };
+    
+    // Save match preferences to settings
+    const existingSettings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+    const updatedSettings = {
+      ...existingSettings,
+      matchPreferences: chatData.matchPreferences,
+      showMeIn: chatData.matchPreferences
+    };
+    localStorage.setItem('userSettings', JSON.stringify(updatedSettings));
     
     setUserProfile(newProfile);
     
@@ -119,6 +130,7 @@ function App() {
     setUserProfile({
       id: null,
       name: '',
+      matchPreferences: 'both',
       age: '',
       sexuality: '',
       gender: '',

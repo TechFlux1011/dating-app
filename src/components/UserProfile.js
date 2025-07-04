@@ -42,8 +42,9 @@ const UserProfile = ({ profile, onEdit }) => {
           <h3>Basic Info</h3>
           <div className="basic-info">
             <p><strong>Age:</strong> {profile.age}</p>
-            <p><strong>Sexuality:</strong> {profile.sexuality}</p>
             <p><strong>Gender:</strong> {profile.gender}</p>
+            <p><strong>Sexuality:</strong> {profile.sexuality}</p>
+            <p><strong>Looking for:</strong> {profile.matchPreferences}</p>
           </div>
         </div>
         

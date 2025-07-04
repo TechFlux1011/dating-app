@@ -9,6 +9,7 @@ const Chatbot = ({ onComplete }) => {
   const [showExamples, setShowExamples] = useState(false);
   const [userData, setUserData] = useState({
     name: '',
+    matchPreferences: '',
     age: '',
     sexuality: '',
     gender: '',
@@ -26,7 +27,17 @@ const Chatbot = ({ onComplete }) => {
       examples: []
     },
     {
-      bot: "Nice to meet you, {name}! 😊 How old are you?",
+      bot: "Nice to meet you, {name}! 😊 What are you looking for on HeartChat?",
+      field: 'matchPreferences',
+      placeholder: 'Type: dating, friends, or both',
+      examples: [
+        "💕 **Dating** - Looking for romantic connections and potential relationships",
+        "👥 **Friends** - Seeking platonic friendships and social connections", 
+        "🌟 **Both** - Open to both romantic relationships and friendships"
+      ]
+    },
+    {
+      bot: "Perfect! How old are you?",
       field: 'age',
       placeholder: 'Enter your age...',
       examples: []
