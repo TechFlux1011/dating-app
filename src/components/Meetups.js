@@ -108,11 +108,12 @@ const Meetups = ({ currentUser, userProfiles, matches }) => {
     return cat ? cat.icon : '📍';
   };
 
-  const getMatchedUsers = () => {
-    return matches.map(match => 
-      userProfiles.find(user => user.id === match.userId)
-    ).filter(Boolean);
-  };
+  // Helper function to get matched users (for future use)
+  // const getMatchedUsers = () => {
+  //   return matches.map(match => 
+  //     userProfiles.find(user => user.id === match.userId)
+  //   ).filter(Boolean);
+  // };
 
   const isUserMatched = (userId) => {
     return matches.some(match => match.userId === userId);

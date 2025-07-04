@@ -6,6 +6,7 @@ import UserProfile from './components/UserProfile';
 import Meetups from './components/Meetups';
 import Settings from './components/Settings';
 import BottomNavBar from './components/BottomNavBar';
+import Search from './components/Search';
 import { TagExtractor } from './utils/tagExtractor';
 import { MatchingEngine } from './utils/matchingEngine';
 import { MockDataGenerator } from './utils/mockData';
@@ -52,9 +53,11 @@ function App() {
       id: Date.now().toString(),
       name: chatData.name,
       selfDescription: chatData.selfDescription,
+      description: chatData.selfDescription, // Add for compatibility
       lookingFor: chatData.lookingFor,
       selfTags: selfTags,
       preferenceTags: preferenceTags,
+      profileTags: selfTags, // Add for compatibility
       completed: true,
       isMock: false
     };
@@ -178,7 +181,7 @@ function App() {
       case 'profile':
         return (
           <UserProfile 
-            userProfile={userProfile} 
+            profile={userProfile} 
             onEdit={() => setCurrentPhase('profile')}
           />
         );
@@ -192,36 +195,10 @@ function App() {
         );
       case 'search':
         return (
-          <div className="search-container">
-            <div className="search-header">
-              <h2>Discover New Connections</h2>
-              <p>Let's find your perfect match</p>
-            </div>
-            
-            {!userProfile.completed ? (
-              <div className="search-prompt">
-                <h3>Complete your profile first</h3>
-                <p>Tell us about yourself to get personalized matches</p>
-                <button 
-                  onClick={() => setCurrentPhase('profile')}
-                  className="complete-profile-btn"
-                >
-                  Complete Profile
-                </button>
-              </div>
-            ) : (
-              <div className="search-results">
-                <h3>Your Matches</h3>
-                <p>Based on your profile, here are your best matches:</p>
-                <Matches 
-                  matches={matches} 
-                  userProfile={userProfile}
-                  onReset={resetApp}
-                  compact={true}
-                />
-              </div>
-            )}
-          </div>
+          <Search 
+            userProfiles={allUsers}
+            currentUser={userProfile}
+          />
         );
       case 'meetups':
         return (

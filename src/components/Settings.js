@@ -6,7 +6,7 @@ const Settings = ({ currentUser, onUpdateUser }) => {
     notifications: true,
     locationSharing: true,
     matchPreferences: 'both', // dating, friends, both
-    ageRange: { min: 18, max: 99 },
+    ageRange: { min: 18, max: 35 },
     maxDistance: 50,
     showMeIn: 'both' // dating, friends, both
   });
@@ -112,19 +112,52 @@ const Settings = ({ currentUser, onUpdateUser }) => {
           
           <div className="setting-item">
             <label className="setting-label">Age range:</label>
-            <div className="range-input">
-              <input
-                type="range"
-                min="18"
-                max="99"
-                value={settings.ageRange.min}
-                onChange={(e) => setSettings({
-                  ...settings,
-                  ageRange: { ...settings.ageRange, min: parseInt(e.target.value) }
-                })}
-                className="range-slider"
-              />
-              <span className="range-value">{settings.ageRange.min} - {settings.ageRange.max}</span>
+            <div className="age-range-container">
+              <div className="range-input">
+                <label className="range-label">Min Age:</label>
+                <input
+                  type="range"
+                  min="18"
+                  max="99"
+                  value={settings.ageRange.min}
+                  onChange={(e) => {
+                    const newMin = parseInt(e.target.value);
+                    setSettings({
+                      ...settings,
+                      ageRange: { 
+                        min: newMin,
+                        max: Math.max(newMin, settings.ageRange.max)
+                      }
+                    });
+                  }}
+                  className="range-slider"
+                />
+                <span className="range-value">{settings.ageRange.min}</span>
+              </div>
+              <div className="range-input">
+                <label className="range-label">Max Age:</label>
+                <input
+                  type="range"
+                  min="18"
+                  max="99"
+                  value={settings.ageRange.max}
+                  onChange={(e) => {
+                    const newMax = parseInt(e.target.value);
+                    setSettings({
+                      ...settings,
+                      ageRange: { 
+                        min: Math.min(settings.ageRange.min, newMax),
+                        max: newMax
+                      }
+                    });
+                  }}
+                  className="range-slider"
+                />
+                <span className="range-value">{settings.ageRange.max}</span>
+              </div>
+              <div className="age-range-display">
+                <span className="age-range-text">Range: {settings.ageRange.min} - {settings.ageRange.max} years</span>
+              </div>
             </div>
           </div>
           

@@ -2,6 +2,27 @@ import React from 'react';
 import './UserProfile.css';
 
 const UserProfile = ({ profile, onEdit }) => {
+  // Handle case where profile is not loaded yet
+  if (!profile || !profile.completed) {
+    return (
+      <div className="user-profile-container">
+        <div className="profile-header">
+          <h2>Your Profile</h2>
+          <button onClick={onEdit} className="edit-profile-btn">
+            Complete Profile
+          </button>
+        </div>
+        
+        <div className="profile-content">
+          <div className="profile-section">
+            <h3>Profile Not Complete</h3>
+            <p>Please complete your profile to view it here.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="user-profile-container">
       <div className="profile-header">
@@ -30,7 +51,7 @@ const UserProfile = ({ profile, onEdit }) => {
         <div className="profile-section">
           <h3>My Tags</h3>
           <div className="tags-container">
-            {profile.selfTags.map((tag, index) => (
+            {profile.selfTags && profile.selfTags.map((tag, index) => (
               <span key={index} className="tag profile-tag">
                 {tag}
               </span>
@@ -41,7 +62,7 @@ const UserProfile = ({ profile, onEdit }) => {
         <div className="profile-section">
           <h3>Preference Tags</h3>
           <div className="tags-container">
-            {profile.preferenceTags.map((tag, index) => (
+            {profile.preferenceTags && profile.preferenceTags.map((tag, index) => (
               <span key={index} className="tag preference-tag">
                 {tag}
               </span>

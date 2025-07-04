@@ -8,6 +8,99 @@ export class MatchingEngine {
     };
   }
 
+  // New method for search functionality
+  findMatchesFromSearchTags(searchTags, allUsers, excludeUserId = null) {
+    if (!searchTags || !allUsers || allUsers.length === 0) {
+      return [];
+    }
+
+    // Filter out the current user if specified
+    const candidateUsers = excludeUserId 
+      ? allUsers.filter(user => user.id !== excludeUserId)
+      : allUsers;
+
+    // Extract tag names from search tags
+    const searchTagNames = searchTags.map(tag => tag.name);
+
+    // Calculate match scores for each user
+    const matchesWithScores = candidateUsers.map(user => {
+      const matchScore = this.calculateSearchMatchScore(searchTagNames, user);
+      const sharedTags = this.findSharedTagsWithSearch(searchTagNames, user);
+      
+      return {
+        user,
+        compatibility: Math.round(matchScore * 100),
+        sharedTags,
+        matchScore
+      };
+    });
+
+    // Sort by match score (highest first) and return matches
+    return matchesWithScores
+      .filter(match => match.matchScore > 0.1) // Only return matches with some compatibility
+      .sort((a, b) => b.matchScore - a.matchScore)
+      .slice(0, 50); // Return top 50 search results
+  }
+
+  calculateSearchMatchScore(searchTagNames, user) {
+    if (!searchTagNames || !user || searchTagNames.length === 0) {
+      return 0;
+    }
+
+    // Get all user tags (profile + preferences)
+    const userAllTags = [
+      ...(user.profileTags || []),
+      ...(user.preferenceTags || []),
+      ...(user.selfTags || [])
+    ];
+
+    // Calculate how many search tags match user's profile
+    const matchingTags = searchTagNames.filter(searchTag => 
+      userAllTags.some(userTag => userTag.toLowerCase().includes(searchTag.toLowerCase()))
+    );
+
+    // Base score from tag matches
+    const tagMatchScore = matchingTags.length / searchTagNames.length;
+
+    // Bonus for having many matching tags
+    const bonusMultiplier = 1 + (matchingTags.length * 0.1);
+
+    // Additional scoring based on user's description matching search intent
+    const descriptionScore = this.calculateDescriptionMatch(searchTagNames, user);
+
+    // Combine scores
+    const finalScore = (tagMatchScore * 0.7) + (descriptionScore * 0.3);
+
+    return Math.min(finalScore * bonusMultiplier, 1);
+  }
+
+  calculateDescriptionMatch(searchTagNames, user) {
+    if (!user.description && !user.lookingFor) {
+      return 0;
+    }
+
+    const userText = `${user.description || ''} ${user.lookingFor || ''}`.toLowerCase();
+    const matchingKeywords = searchTagNames.filter(tag => 
+      userText.includes(tag.toLowerCase())
+    );
+
+    return matchingKeywords.length / searchTagNames.length;
+  }
+
+  findSharedTagsWithSearch(searchTagNames, user) {
+    const userAllTags = [
+      ...(user.profileTags || []),
+      ...(user.preferenceTags || []),
+      ...(user.selfTags || [])
+    ];
+
+    const sharedTags = searchTagNames.filter(searchTag => 
+      userAllTags.some(userTag => userTag.toLowerCase().includes(searchTag.toLowerCase()))
+    );
+
+    return [...new Set(sharedTags)];
+  }
+
   findMatches(userProfile, allUsers) {
     if (!userProfile || !allUsers || allUsers.length === 0) {
       return [];
@@ -146,4 +239,28 @@ export class MatchingEngine {
     
     return Math.min(compatibilityScore, 1);
   }
-} 
+}
+
+// Create a singleton instance for exports
+const matchingEngine = new MatchingEngine();
+
+// Export standalone functions for easy importing
+export const findMatches = (currentUser, allUsers, searchTags = null) => {
+  if (searchTags && searchTags.length > 0) {
+    // Use search functionality
+    return matchingEngine.findMatchesFromSearchTags(searchTags, allUsers, currentUser?.id);
+  } else {
+    // Use regular matching
+    return matchingEngine.findMatches(currentUser, allUsers);
+  }
+};
+
+export const calculateMatchScore = (user1, user2) => {
+  return matchingEngine.calculateMatchScore(user1, user2);
+};
+
+export const getMatchReasons = (user1, user2) => {
+  return matchingEngine.getMatchReasons(user1, user2);
+};
+
+export default matchingEngine;

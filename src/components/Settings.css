@@ -119,11 +119,30 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.age-range-container {
+  margin-top: 15px;
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+}
+
 .range-input {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-top: 8px;
+  margin-bottom: 15px;
+}
+
+.range-input:last-of-type {
+  margin-bottom: 20px;
+}
+
+.range-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+  min-width: 70px;
 }
 
 .range-slider {
@@ -161,8 +180,22 @@
   font-weight: 600;
   color: #667eea;
   font-size: 1rem;
-  min-width: 80px;
+  min-width: 50px;
   text-align: center;
+}
+
+.age-range-display {
+  text-align: center;
+  padding: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.age-range-text {
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
 }
 
 .save-btn {
@@ -230,9 +263,19 @@
     font-size: 2rem;
   }
   
+  .age-range-container {
+    padding: 15px;
+  }
+  
   .range-input {
     flex-direction: column;
     gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .range-label {
+    min-width: auto;
+    text-align: center;
   }
   
   .range-value {

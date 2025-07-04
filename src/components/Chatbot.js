@@ -63,6 +63,7 @@ const Chatbot = ({ onComplete }) => {
       hasStartedRef.current = true;
       addBotMessage(conversationFlow[0].bot);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addBotMessage = (message) => {
