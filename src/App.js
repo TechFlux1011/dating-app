@@ -17,6 +17,9 @@ function App() {
   const [userProfile, setUserProfile] = useState({
     id: null,
     name: '',
+    age: '',
+    sexuality: '',
+    gender: '',
     selfDescription: '',
     lookingFor: '',
     selfTags: [],
@@ -52,6 +55,9 @@ function App() {
     const newProfile = {
       id: Date.now().toString(),
       name: chatData.name,
+      age: chatData.age,
+      sexuality: chatData.sexuality,
+      gender: chatData.gender,
       selfDescription: chatData.selfDescription,
       description: chatData.selfDescription, // Add for compatibility
       lookingFor: chatData.lookingFor,
@@ -113,6 +119,9 @@ function App() {
     setUserProfile({
       id: null,
       name: '',
+      age: '',
+      sexuality: '',
+      gender: '',
       selfDescription: '',
       lookingFor: '',
       selfTags: [],

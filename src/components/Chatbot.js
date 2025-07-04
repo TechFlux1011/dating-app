@@ -9,6 +9,9 @@ const Chatbot = ({ onComplete }) => {
   const [showExamples, setShowExamples] = useState(false);
   const [userData, setUserData] = useState({
     name: '',
+    age: '',
+    sexuality: '',
+    gender: '',
     selfDescription: '',
     lookingFor: ''
   });
@@ -23,7 +26,25 @@ const Chatbot = ({ onComplete }) => {
       examples: []
     },
     {
-      bot: "Nice to meet you, {name}! 😊 Now, I'd love to get to know the real you. Tell me about yourself - your personality, interests, values, and lifestyle. The more you share, the better I can find your perfect match!",
+      bot: "Nice to meet you, {name}! 😊 How old are you?",
+      field: 'age',
+      placeholder: 'Enter your age...',
+      examples: []
+    },
+    {
+      bot: "Got it! What's your sexuality? This helps me understand what you're looking for.",
+      field: 'sexuality',
+      placeholder: 'e.g., Straight, Gay, Bisexual, Pansexual, Asexual, etc.',
+      examples: []
+    },
+    {
+      bot: "Thanks for sharing! What's your gender identity?",
+      field: 'gender',
+      placeholder: 'e.g., Man, Woman, Non-binary, Genderfluid, etc.',
+      examples: []
+    },
+    {
+      bot: "Perfect! Now I'd love to get to know the real you, {name}. Tell me about yourself - your personality, interests, values, and lifestyle. The more you share, the better I can find your perfect match!",
       field: 'selfDescription',
       placeholder: 'Tell me about yourself...',
       examples: [

@@ -81,6 +81,40 @@
   border: 1px solid #e9ecef;
 }
 
+/* Basic Info Section */
+.basic-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 19px;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.basic-info p {
+  margin: 0;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+  background: none;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+
+.basic-info p:last-child {
+  border-bottom: none;
+}
+
+.basic-info strong {
+  color: #333;
+  font-weight: 600;
+  min-width: 80px;
+  display: inline-block;
+}
+
 /* Tags Container */
 .tags-container {
   display: flex;
@@ -131,18 +165,22 @@
 }
 
 .profile-section:nth-child(2) h3::before {
-  content: '✨';
+  content: 'ℹ️';
 }
 
 .profile-section:nth-child(3) h3::before {
-  content: '💕';
+  content: '✨';
 }
 
 .profile-section:nth-child(4) h3::before {
-  content: '🏷️';
+  content: '💕';
 }
 
 .profile-section:nth-child(5) h3::before {
+  content: '🏷️';
+}
+
+.profile-section:nth-child(6) h3::before {
   content: '🎯';
 }
 
@@ -253,4 +291,5 @@
 .profile-section:nth-child(2) { animation-delay: 0.2s; }
 .profile-section:nth-child(3) { animation-delay: 0.3s; }
 .profile-section:nth-child(4) { animation-delay: 0.4s; }
-.profile-section:nth-child(5) { animation-delay: 0.5s; } 
+.profile-section:nth-child(5) { animation-delay: 0.5s; }
+.profile-section:nth-child(6) { animation-delay: 0.6s; } 

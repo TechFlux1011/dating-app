@@ -39,6 +39,15 @@ const UserProfile = ({ profile, onEdit }) => {
         </div>
         
         <div className="profile-section">
+          <h3>Basic Info</h3>
+          <div className="basic-info">
+            <p><strong>Age:</strong> {profile.age}</p>
+            <p><strong>Sexuality:</strong> {profile.sexuality}</p>
+            <p><strong>Gender:</strong> {profile.gender}</p>
+          </div>
+        </div>
+        
+        <div className="profile-section">
           <h3>About Me</h3>
           <p>{profile.selfDescription}</p>
         </div>
